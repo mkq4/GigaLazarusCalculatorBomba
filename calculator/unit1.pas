@@ -71,7 +71,6 @@ procedure TFormCalculator.ImageDigitClick(Sender: TObject);
 var
   digit: String;
 begin
-  // init num for obj
   if Sender = Btn0 then digit := '0'
   else if Sender = Btn1 then digit := '1'
   else if Sender = Btn2 then digit := '2'
@@ -84,20 +83,36 @@ begin
   else if Sender = Btn9 then digit := '9'
   else Exit;
 
-  // clear screen if clicked operator
+  // если до этого нажали оператор — очищаем экран
   if OperatorClicked then
   begin
     Display.Text := '';
     OperatorClicked := False;
   end;
 
-  // add num at field
+  // если поле пустое и нажали 0 — сразу ставим 0,
+  // а затем добавим запятую, если её ещё нет
+  if (Display.Text = '') and (digit = '0') then
+  begin
+    Display.Text := '0' + FormatSettings.DecimalSeparator;
+    Exit;
+  end;
+
+  // добавляем цифру
   Display.Text := Display.Text + digit;
 end;
+
 
 { save operator and last nums }
 procedure TFormCalculator.OperatorClick(Sender: TObject);
 begin
+  if (Sender = BtnSubtract) and (Display.Text = '') then
+  begin
+    // Вводим отрицательное число
+    Display.Text := '-';
+    Exit;
+  end;
+
   if Display.Text <> '' then
   begin
     try
@@ -111,7 +126,7 @@ begin
       else if Sender = BtnDivide then
         CurrentOperator := '÷'
       else
-        Exit; // Некорректная кнопка
+        Exit;
       OperatorClicked := True;
     except
       on E: Exception do
@@ -119,6 +134,7 @@ begin
     end;
   end;
 end;
+
 
 { = }
 procedure TFormCalculator.BtnEqualClick(Sender: TObject);
